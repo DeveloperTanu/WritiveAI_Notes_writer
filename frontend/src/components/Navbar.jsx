@@ -12,10 +12,7 @@ const Navbar = () => {
     if (typeof window === "undefined") return false;
 
     const savedTheme = window.localStorage.getItem("theme");
-    return (
-      savedTheme === "dark" ||
-      (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    );
+    return savedTheme === "dark";
   });
 
   const pathname = usePathname();
