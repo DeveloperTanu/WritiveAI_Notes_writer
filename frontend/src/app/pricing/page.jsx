@@ -1,9 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const PLANS = [
+  {
+    _id: "free",
+    name: "Free",
+    slug: "free",
+    description: "Everything you need to get started with smarter notes.",
+    monthly: { price: "$0", period: "forever" },
+    yearly: { price: "$0", period: "forever" },
+    button: "Get Started",
+    highlighted: false,
+    features: [
+      "10 AI note generations per month",
+      "Basic note editing tools",
+      "PDF exports",
+      "Personal workspace",
+    ],
+  },
+  {
+    _id: "pro",
+    name: "Pro",
+    slug: "pro",
+    description: "More AI tools and room to build a consistent study habit.",
+    monthly: { price: "$9", period: "per month" },
+    yearly: { price: "$84", period: "per year" },
+    button: "Get Pro",
+    highlighted: true,
+    features: [
+      "Unlimited AI note generations",
+      "Advanced editing and rewriting",
+      "PDF uploads and summaries",
+      "AI chat with your notes",
+      "Priority support",
+    ],
+  },
+  {
+    _id: "premium",
+    name: "Premium",
+    slug: "premium",
+    description: "The complete Writive experience for serious learners.",
+    monthly: { price: "$19", period: "per month" },
+    yearly: { price: "$180", period: "per year" },
+    button: "Get Premium",
+    highlighted: false,
+    features: [
+      "Everything in Pro",
+      "Unlimited PDF uploads",
+      "Long-form document analysis",
+      "Early access to new features",
+      "Dedicated priority support",
+    ],
+  },
+];
 
 const features = [
   {
@@ -46,63 +97,7 @@ const features = [
 
 export default function PricingPage() {
   const [billing, setBilling] = useState("monthly");
-  const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let isActive = true;
-
-    const fetchPlans = async () => {
-      try {
-        if (!API_URL) {
-          throw new Error(
-            "API URL is missing. Configure NEXT_PUBLIC_API_URL."
-          );
-        }
-
-        const response = await fetch(`${API_URL}/api/plans`, {
-          method: "GET",
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `Unable to load pricing plans (HTTP ${response.status}).`
-          );
-        }
-
-        const data = await response.json();
-
-        if (!Array.isArray(data)) {
-          throw new Error("The pricing API returned invalid data.");
-        }
-
-        if (isActive) {
-          setPlans(data);
-          setError("");
-        }
-      } catch (err) {
-        if (!isActive) return;
-
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong while loading plans."
-        );
-      } finally {
-        if (isActive) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchPlans();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
+  const plans = PLANS;
 
   return (
     <main className="min-h-screen bg-white text-zinc-900">
@@ -160,68 +155,7 @@ export default function PricingPage() {
 
       <section className="px-6 pb-28 sm:px-10 lg:px-20">
         <div className="mx-auto max-w-6xl">
-          {loading && (
-            <div
-              role="status"
-              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-            >
-              {[1, 2, 3].map((item) => (
-                <div
-                  key={item}
-                  className="animate-pulse rounded-2xl border border-zinc-200 p-7"
-                >
-                  <div className="h-5 w-24 rounded bg-zinc-200" />
-                  <div className="mt-4 h-4 w-40 rounded bg-zinc-100" />
-                  <div className="mt-8 h-10 w-28 rounded bg-zinc-200" />
-                  <div className="mt-7 h-10 rounded bg-zinc-100" />
-                  <div className="mt-8 space-y-4">
-                    {[1, 2, 3, 4].map((line) => (
-                      <div
-                        key={line}
-                        className="h-3 rounded bg-zinc-100"
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {!loading && error && (
-            <div
-              role="alert"
-              className="mx-auto max-w-xl rounded-2xl border border-red-200 bg-red-50 p-8 text-center"
-            >
-              <h2 className="text-lg font-semibold text-red-900">
-                Unable to load pricing
-              </h2>
-
-              <p className="mt-3 text-sm leading-6 text-red-700">
-                {error}
-              </p>
-
-              <button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="mt-6 rounded-md bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-700"
-              >
-                Try again
-              </button>
-            </div>
-          )}
-
-          {!loading && !error && plans.length === 0 && (
-            <div className="rounded-2xl border border-zinc-200 p-10 text-center">
-              <h2 className="text-lg font-semibold">
-                No plans available
-              </h2>
-              <p className="mt-2 text-sm text-zinc-500">
-                Please check back later.
-              </p>
-            </div>
-          )}
-
-          {!loading && !error && plans.length > 0 && (
+          {plans.length > 0 && (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {plans.map((plan) => {
                 const currentPricing =
